@@ -1,7 +1,7 @@
-#iko
+iko
 
 Current version of App: xcPetalV3 
-Current version of Firmware: src
+Latest version of firmware is in the src folder
 
 Libraries
 
