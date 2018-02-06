@@ -29,6 +29,8 @@ import random
 import threading
 from pin_setup import *
 
+thingName = 'pi5'
+
 def digital_write(pin, val):
 	if (val >= 1 or val == True or val == "HIGH"):
 		GPIO.output(pin, True)
@@ -403,7 +405,7 @@ if __name__ == '__main__':
 	tiers = [None for x in range(num_tiers)]
 	for i in range(num_tiers):
 		# tiers[i] = Tier('pi6.'+str(i+1),pin_setup.DHT_PINS[i],light=pin_setup.light_pwm[i],fan=pin_setup.fan_pwm[i],heat=pin_setup.heat_pwm[i],exhaust=pin_setup.exhaust_pwm[i]) 
-		tiers[i] = Tier('pi5',pin_setup.DHT_PIN,light=pin_setup.dict[pin_setup.LED_HIGH],fan=pin_setup.dict[pin_setup.INTAKE_FAN],heat=pin_setup.dict[pin_setup.HEAT_PIN],exhaust=pin_setup.dict[pin_setup.EXHAUST_FAN],circ=pin_setup.dict[pin_setup.RE_FAN],tray_out=pin_setup.dict[pin_setup.TRAY_OUT],tray_read=pin_setup.dict[pin_setup.TRAY_READ],valve=pin_setup.dict[pin_setup.VALVE_PIN])
+		tiers[i] = Tier(thingName,pin_setup.DHT_PIN,light=pin_setup.dict[pin_setup.LED_HIGH],fan=pin_setup.dict[pin_setup.INTAKE_FAN],heat=pin_setup.dict[pin_setup.HEAT_PIN],exhaust=pin_setup.dict[pin_setup.EXHAUST_FAN],circ=pin_setup.dict[pin_setup.RE_FAN],tray_out=pin_setup.dict[pin_setup.TRAY_OUT],tray_read=pin_setup.dict[pin_setup.TRAY_READ],valve=pin_setup.dict[pin_setup.VALVE_PIN])
 	for tier in tiers:
 		lightButtonThread(tier).start()
 
