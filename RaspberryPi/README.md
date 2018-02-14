@@ -1,5 +1,7 @@
 # Setting up a new Pi
 
+Prerequisite: [AWS CLI](https://github.com/aws/aws-cli) Installed and configured (use `aws configure`) once installed
+
 ### Create a new iko unit / 'thing'
 * Duplicate the src folder and rename it to iko. **Don't make unit specific changes to src. src is the main source code for a generic unit**
 * cd into the new iko folder in terminal
