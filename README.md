@@ -1,7 +1,7 @@
 # íko
 
 Current version of App: xcPetalV3 \
-Latest version of firmware is in the src folder
+Latest version of firmware is in the src folder in RaspberryPi
 
 ## Libraries
 
