@@ -11,15 +11,17 @@ Prerequisite: [AWS CLI](https://github.com/aws/aws-cli) Installed and configured
 * Attach policy to certificate: `aws iot attach-principal-policy --principal <certificate-arn> --policy-name PubSubToAnyTopic` (replace `<certificate-arn>` with the arn you copied)
 * Attach certificate to thing: `aws iot attach-thing-principal --thing-name iko<id> --principal <certificate-arn>` (replace `<certificate-arn>` and `<id>`)
 * In automatino_oo.py set thingName to iko<id>
-* Add whatever wifi networks you need to default_networks.txt
+* Add whatever wifi networks you need to wpa_supplicant.conf
 
 ### Set up Raspbian OS
 * Download [Raspbian](https://www.raspberrypi.org/downloads/raspbian/) and load it onto the SD card using [Etcher](https://etcher.io)
 * Copy the iko folder into the /home/pi directory of the SD card if possible (use Linux)
+* Copy the wpa_supplicant.conf file into the boot directory of the SD card
+* Copy the (empty) ssh file into the boot directory of the SD card
 
 # On Pi
 * Enable ssh & change password through `sudo raspi-config` (set password to heinousherbs)
-### Setup wifi
+### Setup wifi (only needed if wpa_supplicant not copied into boot earlier)
   * Open config file: `sudo nano /etc/wpa_supplicant/wpa_supplicant.conf`
   * Add network info to the end of the file:
     ```
