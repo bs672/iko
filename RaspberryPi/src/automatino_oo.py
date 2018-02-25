@@ -88,7 +88,10 @@ def reservoir_update():
 	return res
 
 class Tier():
-	def __init__(self,name,dht_pin,fan=None,light=None,heat=None,exhaust=None,circ=None,tray=None,blue=0,buffer=2,light_override=0,fan_override=0,heat_override=0,blue_override=0,auto=1,valve=None,tray_out=None,tray_read=None,mode=0):
+	def __init__(self,name,dht_pin,fan=None,light=None,heat=None,exhaust=None,
+		circ=None,tray=None,blue=0,buffer=2,light_override=0,fan_override=0,
+		heat_override=0,blue_override=0,auto=1,valve=None,tray_out=None,
+		tray_read=None,mode=0):
 		self.name = name
 		self.temperature = 70 # TODO: Change to None after testing
 		self.humidity = 20 # TODO: Change to None after testing
@@ -396,7 +399,7 @@ if __name__ == '__main__':
 	assert int(sys.argv[1]) <= 5, "Arg 1: Number of tiers, must be int < 5"
 	# assert int(sys.argv[2]) == 1 or int(sys.argv[2]) == 0, "Arg 2: Water or not, 1 or 0"
 	num_tiers, water = int(sys.argv[1]), int(sys.argv[2])
-	pin_setup.setup_gpios(num_tiers)
+	pin_map = pin_setup.setup_gpios(num_tiers)
 	if water:
 		# pin_setup.setup_valve()
 		# pin_setup.setup_reservoir()
@@ -404,17 +407,20 @@ if __name__ == '__main__':
 	
 	tiers = [None for x in range(num_tiers)]
 	for i in range(num_tiers):
-		# tiers[i] = Tier('pi6.'+str(i+1),pin_setup.DHT_PINS[i],light=pin_setup.light_pwm[i],fan=pin_setup.fan_pwm[i],heat=pin_setup.heat_pwm[i],exhaust=pin_setup.exhaust_pwm[i]) 
-		tiers[i] = Tier(thingName,pin_setup.DHT_PIN,light=pin_setup.dict[pin_setup.LED_HIGH],fan=pin_setup.dict[pin_setup.INTAKE_FAN],heat=pin_setup.dict[pin_setup.HEAT_PIN],exhaust=pin_setup.dict[pin_setup.EXHAUST_FAN],circ=pin_setup.dict[pin_setup.RE_FAN],tray_out=pin_setup.dict[pin_setup.TRAY_OUT],tray_read=pin_setup.dict[pin_setup.TRAY_READ],valve=pin_setup.dict[pin_setup.VALVE_PIN])
+		tiers[i] = Tier(thingName,pin_setup.DHT_PIN,light=pin_map['light'],
+			fan=pin_map['intake_fan'],heat=pin_map['heat_pin'],
+			exhaust=pin_map['exhaust_fan'],circ=pin_map['re_fan'],
+			tray_out=pin_map['tray_out'],tray_read=pin_map['tray_read'],
+			valve=pin_map['valve'])
 	for tier in tiers:
 		lightButtonThread(tier).start()
 
-	h_res_read = pin_setup.dict[pin_setup.HRES_READ]
-	h_res_out = pin_setup.dict[pin_setup.HRES_OUT]
-	m_res_read = pin_setup.dict[pin_setup.MRES_READ]
-	m_res_out = pin_setup.dict[pin_setup.MRES_OUT]
-	tray_read = pin_setup.dict[pin_setup.TRAY_READ]
-	tray_out = pin_setup.dict[pin_setup.TRAY_OUT]
+	h_res_read = pin_map[hres_read]
+	h_res_out = pin_map[hres_out]
+	m_res_read = pin_map[mres_read]
+	m_res_out = pin_map[mres_out]
+	tray_read = pin_map[tray_read]
+	tray_out = pin_map[tray_out]
 
 	mqttc = client.Client(tiers)
 	while True:

@@ -2,30 +2,39 @@
 
 import RPi.GPIO as GPIO
 
-# output pins in GPIO
-outputs = []
-INTAKE_FAN = 14; outputs.append(INTAKE_FAN)
-EXHAUST_FAN = 15; outputs.append(EXHAUST_FAN) # RXD
-RE_FAN = 20; outputs.append(RE_FAN)
-HEAT_PIN = 18; outputs.append(HEAT_PIN)
-VALVE_PIN = 25; outputs.append(VALVE_PIN)
-LED_HIGH = 12; outputs.append(LED_HIGH)
-LED_DIM = 23; outputs.append(LED_DIM)
-BUTTON_OUT = 10; outputs.append(BUTTON_OUT) # always high, gp21 is the read pin
-HRES_OUT = 6; outputs.append(HRES_OUT)
-MRES_OUT = 13; outputs.append(MRES_OUT)
-TRAY_OUT = 22; outputs.append(TRAY_OUT)
-# input pins in GPIO
-inputs = []
-BUTTON_IN = 21; inputs.append(BUTTON_IN)
-DHT_PIN = 2; inputs.append(DHT_PIN)
-HRES_READ = 5; inputs.append(HRES_READ)
-MRES_READ = 19; inputs.append(MRES_READ)
-TRAY_READ = 27; inputs.append(TRAY_READ)
-dict = {}
+DHT_PIN = 2
+
+output_map = {}
+output_map['intake_fan'] = 14
+output_map['exhaust_fan'] = 15
+output_map['re_fan'] = 20
+output_map['heat_pin'] = 18
+output_map['valve_pin'] = 25
+output_map['led_high'] = 12
+output_map['led_dim'] = 23
+output_map['button_out'] = 10
+output_map['hres_out'] = 6
+output_map['mres_out'] = 13
+output_map['tray_out'] = 22
+
+input_map = {}
+input_map['button_in'] = 21
+input_map['dht_pin'] = DHT_PIN
+input_map['hres_read'] = 5
+input_map['mres_read'] = 19
+input_map['tray_read'] = 27
+
+pin_map = {}
 
 class Pin(GPIO.PWM):
 	def __init__(self,pin,pwm=0,input=0):
+	""" An object representing an input or output pin.
+	Attributes:
+		pin: the pin number
+		duty cycle: the duty cycle for pwm
+		is_pwm: an int indicating if it is a pwm pin or not
+		is_input: an int indicating if it is an input pin or not
+	"""
 		self.pin = pin
 		self.duty_cycle = 0
 		self.is_pwm = pwm
@@ -59,25 +68,48 @@ class Pin(GPIO.PWM):
 		return GPIO.input(self.pin)
 
 	def set(self, val):
+		""" Writes to the output pin. Does either digital write or pwm
+		depending on whether the Pin was set up as a pwm pin or not.
+		Uses helpers set_pwm and set_digital.
+		Args:
+			val: The value to write to the pin. Should be 1 or 0 for
+			digital and 0 <= val <= 100 for pwm
+		Returns void
+		"""
 		if self.is_pwm:
 			self.__set_pwm(val)
 		else:
 			self.__set_digital(val)
 
 	def get(self):
+		""" Gets the value the pin is outputting.
+		Returns:
+			An int representing the output of the Pin.
+			1 or 0 for digital, between 0 and 100 for pwm.
+		"""
 		return GPIO.input(self.pin)
 		if self.is_pwm:
 			self.__get_pwm()
 		else:
 			self.__get_digital()
 
-def setup_gpios(num_tiers):
-	global outputs; global inputs; global dict
+def setup_gpios(num_tiers=1):
+	""" Sets up the gpio pins.
+	Instantiates each of the pin objects and returns them as a dictionary.
+	Args:
+		num_tiers: an int indicating the number of tiers to set up pins for
+	Returns:
+		pin_map: A dictionary containing all the pin objects that have been set up.
+		key - string like 'light'; value - pin object
+	"""
+	# TODO: Use pin_number_map
+	global output_map; global input_map; global pin_map
 	GPIO.setwarnings(False)
 	GPIO.cleanup()
 	GPIO.setmode(GPIO.BCM)
-	for pin in outputs:
-		dict[pin] = Pin(pin)
-	for pin in inputs:
-		dict[pin] = Pin(pin,input=1)
-	dict[BUTTON_OUT].set(1)
+	for pin_name in output_map:
+		pin_map[pin_name] = Pin(output_map[pin_name])
+	for pin_name in inputs:
+		pin_map[pin_name] = Pin(input_map[pin_name],input=1)
+	pin_map[BUTTON_OUT].set(1)
+	return pin_map
