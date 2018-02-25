@@ -28,13 +28,13 @@ pin_map = {}
 
 class Pin(GPIO.PWM):
 	def __init__(self,pin,pwm=0,input=0):
-	""" An object representing an input or output pin.
-	Attributes:
-		pin: the pin number
-		duty cycle: the duty cycle for pwm
-		is_pwm: an int indicating if it is a pwm pin or not
-		is_input: an int indicating if it is an input pin or not
-	"""
+		""" An object representing an input or output pin.
+		Attributes:
+			pin: the pin number
+			duty cycle: the duty cycle for pwm
+			is_pwm: an int indicating if it is a pwm pin or not
+			is_input: an int indicating if it is an input pin or not
+		"""
 		self.pin = pin
 		self.duty_cycle = 0
 		self.is_pwm = pwm
@@ -102,7 +102,6 @@ def setup_gpios(num_tiers=1):
 		pin_map: A dictionary containing all the pin objects that have been set up.
 		key - string like 'light'; value - pin object
 	"""
-	# TODO: Use pin_number_map
 	global output_map; global input_map; global pin_map
 	GPIO.setwarnings(False)
 	GPIO.cleanup()

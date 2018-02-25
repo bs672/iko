@@ -3,6 +3,7 @@
 # First implementation of the automated petal box using AWS and RaspberryPi
 # This program will publish and subscribe mqtt messages using the AWS IoT hub as a broker
 
+# TODO: Create box class which contains a pin map and put water functions etc in it
 # TODO: change it so that most up to date temp,hum is sent every x seconds and in the background data is being polled
 # TODO: change the publish function so that if it cant publish it doesnt fail. overwrite method in client.py
 # GPIO.input(pin) - digital read
