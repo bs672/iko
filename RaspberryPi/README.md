@@ -14,16 +14,18 @@ Prerequisite: [AWS CLI](https://github.com/aws/aws-cli) Installed and configured
 * Add whatever wifi networks you need to wpa_supplicant.conf
 
 ### Set up Raspbian OS
-* Download [Raspbian](https://www.raspberrypi.org/downloads/raspbian/) and load it onto the SD card using [Etcher](https://etcher.io)
-* Copy the iko folder into the /home/pi directory of the SD card if possible (use Linux)
+* Download [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/) and load it onto the SD card using [Etcher](https://etcher.io)
+* Copy the iko(src) folder into the /home/pi directory of the SD card if possible (use Linux). If not you can do the same through SSH further down in this README
 * Copy the wpa_supplicant.conf file into the boot directory of the SD card
 * Copy the (empty) ssh file into the boot directory of the SD card
 
 # On Pi
-* Enable ssh & change password through `sudo raspi-config` (set password to heinousherbs)
+* Connect keyboard, power and display to pi and enable ssh & change password through `sudo raspi-config` (set password to heinousherbs) or with command: `sudo systemctl enable ssh` followed by `sudo systemctl start ssh`
+* For headless ssh enabling, follow [rpi docs step 3](https://www.raspberrypi.org/documentation/remote-access/ssh/). You will need microsd card reader/adapter.
+* From this point on, all steps can be completed through SSH unless otherwise stated. You may need an IP reader to get headless IP.
 ### Setup wifi (only needed if wpa_supplicant not copied into boot earlier)
   * Open config file: `sudo nano /etc/wpa_supplicant/wpa_supplicant.conf`
-  * Add network info to the end of the file:
+  * Add network info to the end of the file. Note: keyboard may be initially set to "gb" so instead of double quotes you get an @. To get double quotes type shift + 2
     ```
     network={
         ssid="your-network-ssid-name"
@@ -32,9 +34,14 @@ Prerequisite: [AWS CLI](https://github.com/aws/aws-cli) Installed and configured
     ```
   * Exit and `sudo reboot`
 ### Transfer iko folder
-  * Get ip address through `ifconfig`
-  * Transfer the iko folder through [scp](https://www.raspberrypi.org/documentation/remote-access/ssh/scp.md) (use the -r flag to copy a folder)
-* Replace /etc/wpa_supplicant/wpa_supplicant.conf with default_networks.txt
+  * * If not already SSHing, get ip address: on pi type  `ifconfig` or `hostname -I`. Alternatively use [adafruit pi finder](https://learn.adafruit.com/the-adafruit-raspberry-pi-finder/overview)
+  * Ensure pi is connected to wifi: type `ifconfig wlan0`. `inet` will have an address next to it if pi is connected to network.
+  * Transfer the iko(src) folder (if not done earlier after raspbian setup) to /home/pi directory through terminal using [scp](https://www.raspberrypi.org/documentation/remote-access/ssh/scp.md) with the `-r` flag to recursively copy an entire folder
+  example terminal command: `scp -r /Users/Andrea/desktop/src pi@192.168.0.110:/home/pi` 
+  Note: Sometimes an error will appear "remote host notification has changed" In this case type `ssh-keygen -R 192.168.1.233` into terminal
+  * ssh with pi: type `ssh pi@<IP>`, replace <IP> with real IP address, to exit type `exit`
+  * Add default_networks.txt from iko(src) folder
+  command: `sudo cp /home/pi/src/default_networks.txt /etc/wpa_supplicant` 
 ### Install libraries
 * Make install.sh executable: `chmod +x /home/pi/iko/install.sh`
 * Run install.sh `/home/pi/iko/install.sh`
