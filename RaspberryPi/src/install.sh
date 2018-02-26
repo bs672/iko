@@ -17,6 +17,10 @@ sudo apt-get -y upgrade
 sudo apt-get install -y python-pip
 sudo pip install paho-mqtt
 sudo pip install pytz
+sudo apt install python3-gpiozero python3-pigpio
+sudo apt install python-gpiozero python-pigpio
+sudo apt install pigpio
+sudo systemctl enable pigpiod
 sudo apt-get install -y git
 git clone https://github.com/adafruit/Adafruit_Python_DHT.git
 cd Adafruit_Python_DHT

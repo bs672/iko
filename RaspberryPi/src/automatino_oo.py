@@ -30,7 +30,7 @@ import random
 import threading
 from pin_setup import *
 
-thingName = 'pi5'
+thingName = 'pb2'
 
 def digital_write(pin, val):
 	if (val >= 1 or val == True or val == "HIGH"):
@@ -408,20 +408,23 @@ if __name__ == '__main__':
 	
 	tiers = [None for x in range(num_tiers)]
 	for i in range(num_tiers):
-		tiers[i] = Tier(thingName,pin_setup.DHT_PIN,light=pin_map['light'],
+		tiers[i] = Tier(thingName,pin_setup.DHT_PIN,light=pin_map['led_high'],
 			fan=pin_map['intake_fan'],heat=pin_map['heat_pin'],
 			exhaust=pin_map['exhaust_fan'],circ=pin_map['re_fan'],
 			tray_out=pin_map['tray_out'],tray_read=pin_map['tray_read'],
-			valve=pin_map['valve'])
+			valve=pin_map['valve_pin'])
 	for tier in tiers:
 		lightButtonThread(tier).start()
+		#pwm test 2/25/18
+		#pi.set_PWM_frequency(output_map['led_high'], 1000)
+		#pi.set_PWM_dutycycle(output_map['led_high'], 255)
 
-	h_res_read = pin_map[hres_read]
-	h_res_out = pin_map[hres_out]
-	m_res_read = pin_map[mres_read]
-	m_res_out = pin_map[mres_out]
-	tray_read = pin_map[tray_read]
-	tray_out = pin_map[tray_out]
+	h_res_read = pin_map['hres_read']
+	h_res_out = pin_map['hres_out']
+	m_res_read = pin_map['mres_read']
+	m_res_out = pin_map['mres_out']
+	tray_read = pin_map['tray_read']
+	tray_out = pin_map['tray_out']
 
 	mqttc = client.Client(tiers)
 	while True:
