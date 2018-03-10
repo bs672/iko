@@ -10,7 +10,7 @@ network={
    ssid="Jai's Phone"
    psk="asdfghjkl"
 }
-network={
-	ssid="STEAMED BROCCOLI"
-	psk="widefire541"
+network = {
+	ssid = "STEAMED BROCCOLI"
+	psk "widefire541"
 }
