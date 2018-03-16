@@ -11,6 +11,6 @@ network={
    psk="asdfghjkl"
 }
 network={
-	ssid="STEAMED BROCCOLI"
+	ssid="SLICED CABBAGE"
 	psk="widefire541"
 }
