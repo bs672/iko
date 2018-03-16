@@ -115,6 +115,7 @@ def setup_gpios(num_tiers=1):
 	for pin_name in output_map:
 		pin_map[pin_name] = Pin(output_map[pin_name])
 	for pin_name in input_map:
-		pin_map[pin_name] = Pin(input_map[pin_name],input=1)
+		pin_map[pin_name] = Pin(input_map[pin_name],input=1)	
 	pin_map['button_out'].set(1)
+	#pin_map['led_high'] = Pin(output_map['led_high'],pwm=1)
 	return pin_map

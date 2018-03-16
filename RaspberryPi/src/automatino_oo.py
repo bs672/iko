@@ -352,12 +352,12 @@ class Tier():
 		self.water_level = reservoir_update()
 		self.get_readings()
 		# Maybe only do the below things if there's a change in something?
-		if self.auto:
+		if self.auto and self.get_readings():
 			self.automate()
 		self.check_light_button()
 
 	def check_light_button(self):
-		current = GPIO.input(21)
+		current = GPIO.input(17)
 		if current == 1 and self.last_button == 0:
 			self.light_override = 1
 			if self.light.get() == 1:
