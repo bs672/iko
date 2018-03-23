@@ -12,6 +12,7 @@ Prerequisite: [AWS CLI](https://github.com/aws/aws-cli) Installed and configured
 * Attach certificate to thing: `aws iot attach-thing-principal --thing-name iko<id> --principal <certificate-arn>` (replace `<certificate-arn>` and `<id>`)
 * In automatino_oo.py set thingName to iko<id>
 * Add whatever wifi networks you need to wpa_supplicant.conf
+*NOTE: Sometimes the aws cli commands do not work. In that case you can use the aws management console to create the thing, keys and certificates. You can also use it to attach policy to certificate and certificate to thing. The only extra step is changing the names of the keys to cert.pem, publicKey.pem and privkey.pem
 
 ### Set up Raspbian OS
 * Download [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/) and load it onto the SD card using [Etcher](https://etcher.io)

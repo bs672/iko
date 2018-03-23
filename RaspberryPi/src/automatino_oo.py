@@ -30,7 +30,7 @@ import random
 import threading
 from pin_setup import *
 
-thingName = 'pb2'
+thingName = 'iko7'
 
 def digital_write(pin, val):
 	if (val >= 1 or val == True or val == "HIGH"):
@@ -92,7 +92,7 @@ class Tier():
 	def __init__(self,name,dht_pin,fan=None,light=None,heat=None,exhaust=None,
 		circ=None,tray=None,blue=0,buffer=2,light_override=0,fan_override=0,
 		heat_override=0,blue_override=0,auto=1,valve=None,tray_out=None,
-		tray_read=None,mode=0):
+		tray_read=None,mode=0, button_in=None, button_out=None):
 		self.name = name
 		self.temperature = 70 # TODO: Change to None after testing
 		self.humidity = 20 # TODO: Change to None after testing
@@ -101,13 +101,15 @@ class Tier():
 		self.light, self.fan, self.heat, self.exhaust, self.circ = light, fan, heat, exhaust, circ
 		self.buffer,self.auto,self.valve,self.tray_out,self.tray_read,self.mode = buffer,auto,valve,tray_out,tray_read,mode
 		self.dht_pin = dht_pin
+		self.button_in, self.button_out = button_in,button_out
 		self.profiles = [
-			{'name': 'day', 'temperatureSP': 80, 'humiditySP': 60, 'light': 1, 'blue': 0}, 
+			{'name': 'day', 'temperatureSP': 80, 'humiditySP': 60, 'light': 1, 'blue': 0},
+			{'name': 'eve', 'temperatureSP': 80, 'humiditySP': 60, 'light': 0.2, 'blue': 0},
 			{'name': 'night','temperatureSP': 65, 'humiditySP': 60, 'light': 0, 'blue': 0},
 			{'name': 'germ','temperatureSP': 80, 'humiditySP': 60, 'light': 0, 'blue': 1}
 		]
 		self.current_profile = self.last_profile = self.profiles[0]
-		self.schedule = [['day','0400'],['night','2200']]
+		self.schedule = [['day','0400'],['eve','1700'],['night','2200']]
 		self.last_update = time.time()
 		self.circ.set(1)
 
@@ -318,7 +320,7 @@ class Tier():
 		while (humreading is None or tempreading is None) and reading_counter < 5:
 			print("reading")
 			reading_counter = reading_counter + 1
-			humreading, tempreading = Adafruit_DHT.read(Adafruit_DHT.DHT22, self.dht_pin)
+			humreading, tempreading = Adafruit_DHT.read(Adafruit_DHT.DHT22, self.dht_pin.pin)
 		if (humreading is not None and tempreading is not None):
 			self.humidity = humreading
 			self.temperature = (tempreading*1.8) + 32 # converting to fahrenheit
@@ -334,7 +336,7 @@ class Tier():
 			self.tray_out.set(0)
 			print("valve opened")
 			return 0
-		self.tray_out.set(0)
+			self.tray_out.set(0)
 		# If waterval > 10 and the valve is currently open
 		if (self.valve.get() == 1):
 			self.valve.set(0)
@@ -357,14 +359,48 @@ class Tier():
 		self.check_light_button()
 
 	def check_light_button(self):
-		current = GPIO.input(17)
-		if current == 1 and self.last_button == 0:
-			self.light_override = 1
-			if self.light.get() == 1:
-				self.change_light(0)
-			else:
-				self.change_light(1)
-		self.last_button = current
+		prev_input = 0
+		startTime = 0
+		timePressed = 0
+		dim_min = 0.1
+		dim_rate = 0.05
+		dim_time = 0.5
+
+		self.button_out.set(1)
+		ledState = self.light.get()
+
+		while(1):
+
+			new_input = self.button_in.get()
+			#if the last reading was low and the new one is high, the button was pressed, start timers
+			if (not(prev_input) and new_input):
+				startTime = time.clock()
+			#check if button is being held
+			elif (prev_input and new_input):
+				timePressed = 100*(time.clock() - startTime)
+				#dim
+				if ((timePressed > dim_time) and (ledState > 0)):
+					ledState = max(ledState - dim_rate, dim_min)
+					self.change_light(ledState)
+					self.light_override = 1
+			#button is released, reset timers and turn on off lights if under one second
+			elif (prev_input and not(new_input)): 
+				if ((ledState == 0) and (timePressed < dim_time)):
+					self.change_light(1)
+					self.light_override = 1
+					ledState = 1
+				elif ((ledState > 0) and (timePressed < dim_time)):
+					self.change_light(0)
+					self.light_override = 1
+					ledState = 0
+				#reset timers
+				timePressed = 0
+				startTime = 0
+
+			#update previous input
+			prev_input = new_input
+			#slight pause to debounce
+			time.sleep(0.05)
 
 	def update_cloud(self):
 		if time.time() - self.last_update > 5:
@@ -386,12 +422,14 @@ class Tier():
 
 class lightButtonThread(threading.Thread):
     def __init__(self, tier):
-        threading.Thread.__init__(self)
+        #threading.Thread.__init__(self)
         self.tier = tier
 
     def run(self):
-        while True:
-        	tier.check_light_button()
+        t = threading.Thread(target=tier.check_light_button)
+        t.start
+        #while True:
+        #	tier.check_light_button()
 
 if __name__ == '__main__':
 	num_tiers = 1
@@ -408,23 +446,20 @@ if __name__ == '__main__':
 	
 	tiers = [None for x in range(num_tiers)]
 	for i in range(num_tiers):
-		tiers[i] = Tier(thingName,pin_setup.DHT_PIN,light=pin_map['led_high'],
+		tiers[i] = Tier(thingName,pin_map['dht_pin'],light=pin_map['led_high'],
 			fan=pin_map['intake_fan'],heat=pin_map['heat_pin'],
 			exhaust=pin_map['exhaust_fan'],circ=pin_map['re_fan'],
 			tray_out=pin_map['tray_out'],tray_read=pin_map['tray_read'],
-			valve=pin_map['valve_pin'])
+			valve=pin_map['valve_pin'], button_in = pin_map['button_in'],
+			button_out = pin_map['button_out'], )
 	for tier in tiers:
-		lightButtonThread(tier).start()
-		#pwm test 2/25/18
-		#pi.set_PWM_frequency(output_map['led_high'], 1000)
-		#pi.set_PWM_dutycycle(output_map['led_high'], 255)
+		#lightButtonThread(tier).start()
+		lightButtonThread(tier).run()
 
 	h_res_read = pin_map['hres_read']
 	h_res_out = pin_map['hres_out']
 	m_res_read = pin_map['mres_read']
 	m_res_out = pin_map['mres_out']
-	tray_read = pin_map['tray_read']
-	tray_out = pin_map['tray_out']
 
 	mqttc = client.Client(tiers)
 	while True:

@@ -7,13 +7,13 @@ import Adafruit_DHT
 GPIO.setmode(GPIO.BCM)
 
 DHT_PIN=2
-HRES_READ=5 #changed to 27 in 2/23/18 board
+HRES_READ=5 
 MRES_READ=19
-TRAY_READ=27 #changed to 5 in 2/13/18 pcb
+TRAY_READ=27 
 
-HRES_OUT=6 #changed to 22 in 2/23/18 board
+HRES_OUT=6 
 MRES_OUT=13
-TRAY_OUT=22 #changed to 6 in 2/23/18 board
+TRAY_OUT=22 
 
 GPIO.setup(DHT_PIN, GPIO.IN)
 GPIO.setup(HRES_READ, GPIO.IN)
@@ -34,13 +34,13 @@ def tray_update():
 			GPIO.output(TRAY_OUT, False)
 			#print("valve opened")
 			return 0
-		GPIO.output(TRAY_OUT, False)
 		## If waterval > 10 and the valve is currently open
 		#if (self.valve.get() == 1):
 		#	self.valve.set(0)
 		#	print("valve closed")
 		
 		if (GPIO.input(TRAY_READ) == 1):
+			GPIO.output(TRAY_OUT, False)
 			return 1
 
 def reservoir_update():
